@@ -64,6 +64,9 @@ function updTrip(){forceCool();const t=$("ttype").value==="توصيلة";`);
  rep("print1",`if(!w){try{window.print()}catch(e){}return}`,`if(!w){try{window.print()}catch(e){}setTimeout(askNew,300);return}`);
  rep("print2",`w.document.close();setTimeout(()=>{w.focus();w.print()},500)};`,`w.document.close();setTimeout(()=>{w.focus();w.print()},500);setTimeout(askNew,800)};`);
 
+ /* 5) استيراد العربيات: يقبل الشكلين (الموقع الأصلي وموقعك القديم) */
+ rep("استيراد العربيات",`arr.forEach(x=>{const g=`,`arr.forEach(x=>{if(x&&x.cnum){x={carName:x.tco,carType:x.ctype,carNumber:x.cnum,carPlate:x.cbelong,chassisNumber:x.chassis,driverName:x.driver,driverPhone:x.dphone,backupDriverName:x.bdriver,backupDriverPhone:x.bphone}}const g=`);
+
  /* الدوال الجديدة داخل السكريبت الأساسي */
  const extra=`
 function nz(x){return String(x||"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي")}
