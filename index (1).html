@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>إخطار رحلة سياحية</title>
+</head>
+<body style="font-family:Tahoma,Arial,sans-serif;padding:20px">
+جاري التحميل...
+<script>
+(async()=>{
+ let html;
+ try{
+  const r=await fetch("old.html?v="+Date.now(),{cache:"no-store"});
+  if(!r.ok)throw new Error("x");
+  html=await r.text();
+ }catch(e){
+  document.body.innerHTML='<p style="color:#b42318;font-weight:bold">مش لاقي ملف old.html. لازم تغيّر اسم الملف القديم من index.html إلى old.html على GitHub.</p>';
+  return;
+ }
+ const fails=[];
+ const rep=(name,a,b)=>{const n=html.split(a).length-1;if(n!==1){fails.push(name);return}html=html.split(a).join(b)};
+ const range=(name,s,e,b)=>{const i=html.indexOf(s);const j=i<0?-1:html.indexOf(e,i);if(j<0){fails.push(name);return}html=html.slice(0,i)+b+html.slice(j+e.length)};
+
+ /* 1) حذف زرار حفظ وتأكيد */
+ rep("حذف الزرار",`<button class="p" id="save">حفظ وتأكيد</button>`,``);
+ rep("حذف onclick الحفظ",`$("save").onclick=()=>{if(saveTrip())alert("تم الحفظ في سجل 72 ساعة")};`,``);
+ rep("حذف intercept الحفظ",`intercept("save","حفظ الرحلة",()=>{$("save").onclick()},false);`,``);
+
+ /* 2) نوع اوفر داي كول خاص */
+ rep("ثوابت كول",`const EXITS=[`,`const COOL="اوفر داي كول خاص",PROG_COOL="رست 85 + بالون";
+const EXITS=[`);
+ rep("خيار كول",`<option>اوفر داي</option><option>اوفر نايت</option>`,`<option>اوفر داي</option><option>اوفر داي كول خاص</option><option>اوفر نايت</option>`);
+ rep("isDef",`.concat(Object.values(lsGet("fts_progs",{}))).some(`,`.concat(Object.values(lsGet("fts_progs",{})),[PROG_COOL]).some(`);
+ rep("progFor",`function progFor(d){const o=`,`function progFor(d){if($("ttype").value===COOL)return PROG_COOL;const o=`);
+ rep("progSave",`$("progSave").onclick=()=>{const o=`,`$("progSave").onclick=()=>{if($("ttype").value===COOL){$("progmsg").textContent="برنامج كول خاص ثابت ومينفعش يتحفظ كافتراضي";return}const o=`);
+ rep("updTrip",`function updTrip(){const t=$("ttype").value==="توصيلة";`,`function forceCool(){
+ const c=$("ttype").value===COOL;
+ $("gfSel").disabled=c;$("gfOther").disabled=c;
+ if(c){$("gfSel").value="الأقصر";$("gfOther").style.display="none";$("gfTo").value="الأقصر";syncDirs();
+  document.querySelectorAll("[data-g=e]").forEach((x,k)=>x.checked=(k===EX2["الأقصر"]))}
+ applyProg(c);applyTimes()}
+function updTrip(){forceCool();const t=$("ttype").value==="توصيلة";`);
+ rep("dn",`const dn=(s.ttype==="اوفر داي"||s.ttype==="اوفر نايت");`,`const dn=(s.ttype==="اوفر داي"||s.ttype==="اوفر نايت"||s.ttype===COOL);`);
+ rep("bdriver",`if(bus&&s.ttype==="اوفر داي"){`,`if(bus&&(s.ttype==="اوفر داي"||s.ttype===COOL)){`);
+
+ /* 3) تحذير الاتجاه والبرنامج */
+ rep("missing",`if(!s.chassis.trim())add("chassis","رقم الشاسيه (للـ GPS)",false);`,`if(!s.chassis.trim())add("chassis","رقم الشاسيه (للـ GPS)",false);
+ const pm=progMismatch(s);if(pm)m.push([s.ttype==="توصيلة"?"progExtra":"prog",pm,true,true]);`);
+ range("showMiss",`function showMiss(focus){`,`return b.length>0}`,`function showMiss(focus){
+ document.querySelectorAll(".bad").forEach(x=>x.classList.remove("bad"));
+ const m=missing(state()),b=m.filter(x=>x[2]&&!x[3]),c=m.filter(x=>x[3]),w=m.filter(x=>!x[2]),box=$("miss");
+ if(!m.length){box.style.display="none";return false}
+ box.className="miss "+(b.length||c.length?"blk":"wrn");box.style.display="";
+ box.innerHTML=[b.length?"<b>⚠ ناقص ولازم تكتبه قبل الطباعة:</b> "+b.map(x=>x[1]).join("، "):"",c.length?"<b>⚠ تحذير:</b> "+c.map(x=>x[1]).join("، "):"",w.length?"<b>تنبيه (مش مكتوب):</b> "+w.map(x=>x[1]).join("، "):""].filter(Boolean).join("<br>");
+ if(focus){m.forEach(x=>{const e=$(x[0]);if(e)e.classList.add("bad")});
+  const t=b[0]||c[0];if(t){const f=$(t[0]);if(f){f.scrollIntoView({block:"center"});f.focus()}}}
+ return b.length>0||c.length>0}`);
+ rep("intercept",`const m=missing(state()).filter(x=>x[2]);`,`const m=missing(state()).filter(x=>x[2]&&!(id==="reset"&&x[3]));`);
+ rep("عنوان التأكيد",`<b>⚠ في بيانات ناقصة</b>`,`<b>⚠ تنبيه قبل ما تكمّل</b>`);
+ rep("نص التأكيد",`من غير ما تكملها؟`,`رغم كده؟`);
+
+ /* 4) تنبيه رحلة جديدة بعد الطباعة */
+ rep("print1",`if(!w){try{window.print()}catch(e){}return}`,`if(!w){try{window.print()}catch(e){}setTimeout(askNew,300);return}`);
+ rep("print2",`w.document.close();setTimeout(()=>{w.focus();w.print()},500)};`,`w.document.close();setTimeout(()=>{w.focus();w.print()},500);setTimeout(askNew,800)};`);
+
+ /* 5) استيراد العربيات: يقبل الشكلين (الموقع الأصلي وموقعك القديم) */
+ rep("استيراد العربيات",`arr.forEach(x=>{const g=`,`arr.forEach(x=>{if(x&&x.cnum){x={carName:x.tco,carType:x.ctype,carNumber:x.cnum,carPlate:x.cbelong,chassisNumber:x.chassis,driverName:x.driver,driverPhone:x.dphone,backupDriverName:x.bdriver,backupDriverPhone:x.bphone}}const g=`);
+
+ /* 6) نتيجة GPS من الشيت */
+ rep("كارت نتيجة GPS",`<div id="costBox"></div>`,`<div id="costBox"></div>
+<div style="margin:10px 0;border-top:1px solid var(--line);padding-top:8px"><div class="row" style="margin:0 0 6px;align-items:center"><h2 style="margin:0">نتيجة عربياتي في GPS</h2><button id="gpsRef">تحديث النتيجة</button><span class="note" id="gpsInfo" style="margin:0"></span></div><div id="gpsList"></div></div>`);
+ rep("نتيجة العربية الحالية",`<div class="note" id="gfmsg" style="flex-basis:100%"></div>`,`<div class="note" id="gfmsg" style="flex-basis:100%"></div>
+<div class="note" id="gfRes" style="flex-basis:100%;font-size:13.5px"></div>`);
+ rep("ربط السجل بالنتيجة",`b.ts-a.ts);costDraw(l);`,`b.ts-a.ts);costDraw(l);gpsShowFor(l);`);
+
+ /* الدوال الجديدة داخل السكريبت الأساسي */
+ const extra=`
+function nz(x){return String(x||"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي")}
+function progMismatch(s){
+ const KW={"القاهرة":["الزعفران","هرم","اهرام","خان خليل","مصر القديم","مرسي الحجه","سقاره","القاهر"],"الأقصر":["رست 85","كرنك","حتشبسوت","ممنون","ملوك","ملكات","الاقصر"],"أسوان":["السد العالي","فيله","المسله","فلوكه","اسوان"]};
+ const to=(s.gfTo||"").trim(),p=nz(s.progOut);
+ if(!KW[to]||!p.trim())return"";
+ const bad=Object.keys(KW).find(k=>k!==to&&KW[k].some(w=>p.includes(w)));
+ return bad?"الاتجاه "+to+" لكن البرنامج بتاع "+bad:""}
+function askNew(){
+ let o=document.getElementById("cfov");if(o)o.remove();
+ o=document.createElement("div");o.id="cfov";o.className="ov";
+ o.innerHTML='<div class="cf" role="dialog" aria-modal="true"><b>⚠ لازم تعمل رحلة جديدة</b><p style="margin:8px 0">الإخطار اتبعت للطباعة واتسجل. قبل ما تكتب رحلة تانية اضغط «رحلة جديدة»، وإلا التعديل هيتحفظ مكان الرحلة اللي لسه طابعها.</p><div class="row"><button class="p" id="nwY">رحلة جديدة دلوقتي</button><button id="nwN">لاحقًا</button></div></div>';
+ document.body.appendChild(o);
+ $("nwY").onclick=()=>{o.remove();$("reset").onclick();curId=null;check();window.scrollTo(0,0)};
+ $("nwN").onclick=()=>o.remove();
+ $("nwY").focus()}
+
+var GPS_SHEET="1UbKNSxmAQGF1UA8rWZR9ekokAPIE_Lnkc_1gfowNzTM",GPS_GID="0",gpsIdx=null;
+function gpsAr(x){return String(x==null?"":x).replace(/[٠-٩]/g,function(c){return c.charCodeAt(0)-1632})}
+function gpsDig(x){return gpsAr(x).replace(/\\D/g,"")}
+function gpsLet(x){return nz(x).replace(/[^ء-ي]/g,"")}
+function gpsCh(x){return gpsAr(x).replace(/[^0-9A-Za-z]/g,"").toUpperCase().replace(/^0+/,"")}
+function gpsCell(row,i){var c=row.c&&row.c[i];if(!c)return"";var v=c.f!=null?c.f:c.v;return v==null?"":String(v).trim()}
+function gpsBuild(r){
+ var rows=(r.table&&r.table.rows)||[],ch={},pl={},n=0;
+ rows.forEach(function(x,i){
+  var o={t:gpsCell(x,0),lt:gpsCell(x,5),num:gpsCell(x,6),ch:gpsCell(x,7),st:gpsCell(x,8),nt:gpsCell(x,9),i:i};
+  if(!/\\d/.test(o.t))return;
+  var k=gpsCh(o.ch),d=gpsDig(o.num);
+  if(!k&&!d)return;
+  n++;
+  if(k)ch[k]=o;
+  if(d)pl[d+"|"+gpsLet(o.lt)]=o});
+ return {ch:ch,pl:pl,n:n}}
+function gpsFind(c){
+ if(!gpsIdx)return null;
+ var a=null,b=null,k=gpsCh(c.chassis),d=gpsDig(c.cnum);
+ if(k)a=gpsIdx.ch[k]||null;
+ if(d)b=gpsIdx.pl[d+"|"+gpsLet(c.cbelong)]||null;
+ if(a&&b)return a.i>b.i?a:b;
+ return a||b}
+function gpsChip(st,empty){
+ var t=String(st||"").trim(),bg="#e5e7eb",fg="#374151";
+ if(t==="مفعل"){bg="#dcfce7";fg="#14532d"}else if(/مكرر/.test(t)){bg="#fef3c7";fg="#78350f"}else if(t){bg="#fee2e2";fg="#7f1d1d"}
+ return '<span style="background:'+bg+';color:'+fg+';padding:2px 10px;border-radius:12px;font-weight:bold;font-size:13px">'+esc(t||empty||"—")+'</span>'}
+function gpsShowFor(l){
+ var box=$("gpsList");if(!box)return;
+ if(!gpsIdx){box.innerHTML='<div class="note">لسه ماتحملتش نتيجة الشيت. دوس تحديث النتيجة.</div>';return}
+ var seen={},items=[];
+ (l||[]).forEach(function(h){var s=h.s,k=String(s.cnum||"").trim()+"|"+String(s.chassis||"").trim();if(!String(s.cnum||"").trim()||seen[k])return;seen[k]=1;items.push(s)});
+ if(!items.length){box.innerHTML='<div class="note">مفيش عربيات في السجل.</div>';return}
+ box.innerHTML=items.map(function(s){
+  var r=gpsFind({chassis:s.chassis,cnum:s.cnum,cbelong:s.cbelong});
+  var car=(String(s.cbelong||"").replace(/[\\d\\s\\-\\/\\.]+/g,"")+" "+s.cnum).trim();
+  var head='<span><b>'+esc(car)+'</b>'+(s.driver?' | '+esc(s.driver):'')+'</span>';
+  if(!r)return '<div class="hi">'+head+gpsChip("","لسه مظهرتش في الشيت")+'</div>';
+  return '<div class="hi">'+head+'<span>'+gpsChip(r.st,"لسه مفيش نتيجة")+' <small>'+esc(r.t)+'</small></span>'+(r.nt?'<span style="flex-basis:100%;font-size:12.5px;color:var(--mut)">'+esc(r.nt)+'</span>':'')+'</div>'}).join("")}
+function gpsPaintCurrent(){
+ var el=$("gfRes");if(!el)return;
+ if(!gpsIdx){el.innerHTML="";return}
+ var s=state();
+ if(!s.cnum.trim()&&!s.chassis.trim()){el.innerHTML="";return}
+ var r=gpsFind({chassis:s.chassis,cnum:s.cnum,cbelong:s.cbelong});
+ el.innerHTML='نتيجة العربية دي في GPS: '+(r?gpsChip(r.st,"لسه مفيش نتيجة")+(r.nt?' <span>'+esc(r.nt)+'</span>':''):'<span style="color:var(--mut)">لسه مظهرتش في الشيت (دوس تحديث النتيجة بعد دقيقة)</span>')}
+function gpsLoad(){
+ var info=$("gpsInfo"),cb="gpsCb"+Date.now(),sc=document.createElement("script"),done=false;
+ if(info)info.textContent="جاري التحديث...";
+ function fin(ok,msg){
+  if(done)return;done=true;
+  try{delete window[cb]}catch(e){window[cb]=undefined}
+  if(sc.parentNode)sc.parentNode.removeChild(sc);
+  if(!ok&&info)info.textContent="مقدرتش أقرا الشيت"+(msg?" ("+msg+")":"")+". اتأكد من النت وإن الشيت مفتوح بالرابط."}
+ window[cb]=function(r){
+  if(done)return;
+  if(!r||r.status==="error"){fin(false,r&&r.errors&&r.errors[0]?(r.errors[0].detailed_message||r.errors[0].message):"");return}
+  gpsIdx=gpsBuild(r);
+  fin(true);
+  if(info)info.textContent="اتحدّثت "+new Date().toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit"})+" - "+gpsIdx.n+" صف في الشيت";
+  drawHist();gpsPaintCurrent()};
+ sc.onerror=function(){fin(false,"")};
+ setTimeout(function(){fin(false,"")},20000);
+ sc.src="https://docs.google.com/spreadsheets/d/"+GPS_SHEET+"/gviz/tq?gid="+GPS_GID+"&headers=0&tq="+encodeURIComponent("select A,B,C,D,F,N,P,Q,T,U")+"&tqx=out:json;responseHandler:"+cb;
+ document.head.appendChild(sc)}
+document.querySelector(".app").addEventListener("input",gpsPaintCurrent);
+$("gpsRef").onclick=function(){gpsLoad()};
+$("gfSend").addEventListener("click",function(){setTimeout(gpsLoad,12000);setTimeout(gpsLoad,40000);setTimeout(gpsLoad,90000)});
+gpsLoad();
+`;
+ const k=html.lastIndexOf("</scr"+"ipt>");
+ if(k<0){fails.push("إضافة الدوال")}else{html=html.slice(0,k)+extra+html.slice(k)}
+
+ if(fails.length){
+  const banner='<div style="background:#b42318;color:#fff;padding:8px 12px;font-size:14px">تعديلات مطبقتش: '+fails.join("، ")+'</div>';
+  html=html.split("<body>").join("<body>"+banner);
+ }
+ document.open();document.write(html);document.close();
+})();
+</script>
+</body>
+</html>
