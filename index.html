@@ -465,12 +465,12 @@ $("hfAll").onclick=()=>{$("hfDate").value="";drawHist()};
 /* حساب العربيات والكوست */
 function getPrices(){return Object.assign({"ليموزين":250,"ميكروباص":450,"كوستر":450,"اتوبيس":600},lsGet("fts_prices",{}))}
 function costDraw(l){
- const P=getPrices(),cnt={};
- l.forEach(h=>{const t=normType(h.s.ctype)||"غير محدد";cnt[t]=(cnt[t]||0)+1});
+ const P=getPrices(),cnt={},cool={};
+ l.forEach(h=>{const t=normType(h.s.ctype)||"غير محدد";cnt[t]=(cnt[t]||0)+1;if(/كول خاص/.test(h.s.ttype||""))cool[t]=(cool[t]||0)+1});
  document.querySelectorAll(".prc").forEach(i=>{if(document.activeElement!==i)i.value=P[i.dataset.t]});
  const names=Object.keys(cnt);let tc=0,tt=0;
  const td='style="border:1px solid var(--line);padding:5px 8px;text-align:center"';
- const rows=names.map(n=>{const p=P[n]||0,sub=p*cnt[n];tc+=cnt[n];tt+=sub;return `<tr><td ${td}>${esc(n)}</td><td ${td}>${cnt[n]}</td><td ${td}>${p}</td><td ${td}>${sub}</td></tr>`}).join("");
+ const rows=names.map(n=>{const p=P[n]||0,paid=cnt[n]-(cool[n]||0),sub=p*paid;tc+=cnt[n];tt+=sub;return `<tr><td ${td}>${esc(n)}</td><td ${td}>${cnt[n]}${cool[n]?` <small>(منهم ${cool[n]} كول خاص = 0)</small>`:""}</td><td ${td}>${p}</td><td ${td}>${sub}</td></tr>`}).join("");
  const fd=$("hfDate").value;
  $("costBox").innerHTML=names.length?`<h2 style="margin-top:10px">عربيات وكوست ${fd?esc(fmt(fd)):"كل السجل"}</h2><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:14px"><tr><td ${td}><b>النوع</b></td><td ${td}><b>العدد</b></td><td ${td}><b>السعر</b></td><td ${td}><b>الإجمالي</b></td></tr>${rows}<tr><td ${td}><b>المجموع</b></td><td ${td}><b>${tc}</b></td><td ${td}></td><td ${td}><b>${tt}</b></td></tr></table></div>`:"";
 }
@@ -617,7 +617,7 @@ function gpsShowFor(l){
  if(!items.length){box.innerHTML='<div class="note">مفيش عربيات في السجل.</div>';return}
  box.innerHTML=items.map(function(s){
   var r=gpsFind({chassis:s.chassis,cnum:s.cnum,cbelong:s.cbelong});
-  var car=(String(s.cbelong||"").replace(/[\d\s\-\/\.]+/g,"")+" "+s.cnum).trim();
+  var car=(String(s.cbelong||"").replace(/[\d\s\-\/\.]+/g,"").split("").join(" ")+"  "+s.cnum).trim();
   var head='<span><b>'+esc(car)+'</b>'+(s.driver?' | '+esc(s.driver):'')+'</span>';
   if(!r)return '<div class="hi">'+head+gpsChip("","لسه مظهرتش في الشيت")+'</div>';
   return '<div class="hi">'+head+'<span>'+gpsChip(r.st,"لسه مفيش نتيجة")+' <small>'+esc(r.t)+'</small></span>'+(r.nt?'<span style="flex-basis:100%;font-size:12.5px;color:var(--mut)">'+esc(r.nt)+'</span>':'')+'</div>'}).join("")}
